@@ -87,14 +87,13 @@ app.use(function(req, res) {
   log.warn(req.connection.remoteAddress + " [404] GET " + req.url)
 });
 
-
+var clients;
 
 //Socket.io initiating and logging connections
 io.on('connection', function(socket, next) {
   log.info(socket.handshake.address + " has connected.")
 
-
-  socket.on('disconnect', function(socket) {
+  socket.on('disconnect', function() {
     log.info(socket.handshake.address + " has disconnected")
   })
 })
