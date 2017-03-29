@@ -1,6 +1,19 @@
 #!/bin/bash
 
 USER=$1
+
+
+if [ -z "$USER" ]; then
+  echo "Please specify an email!"
+  exit
+else
+  echo
+  echo "----------------------------"
+  echo "TARGET: $USER"
+  echo "----------------------------"
+  echo
+fi
+
 HAVEIBEENPWNED-BREACH=$(curl --user-agent 'StalkerJS - A NodeJS WebApp for User Recon' "https://haveibeenpwned.com/api/v2/breachedaccount/$1")
 sleep 5 #Avoid rate limiting
 HAVEIBEENPWNED-PASTE=$(curl --user-agent 'StalkerJS - A NodeJS WebApp for User Recon' "https://haveibeenpwned.com/api/v2/pasteaccount/$1")
