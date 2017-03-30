@@ -30,11 +30,20 @@
     <div class="ui divider"></div>
 </body>
 <script>
+    var searchedPreviously;
     $(function() {
         console.log("Page Loaded!")
+        var emailurl = unescape(location.search.split("=")[1])
+        if (emailurl) {
+            $('.email').val(emailurl)
+            $('.submit').addClass("disabled loading")
+            sendEmailRecon(emailurl)
+        }
+
         socket.on('done-results', function() {
             $('.submit').removeClass("disabled loading")
             console.log("test")
+            searchedPreviously = 1
         })
     })
 
@@ -46,35 +55,39 @@
     })
 
     function sendEmailRecon(email) {
-        if (email == '') {
-            swal("Wait!", "Please provide an email!", 'error')
+        if (searchedPreviously == 1) {
+            e.preventDefaultBehavior()
         } else {
-            socket.emit('start-email-recon', email)
+            if (email == '') {
+                swal("Wait!", "Please provide an email!", 'error')
+            } else {
+                socket.emit('start-email-recon', email)
+            }
+            socket.on('psbdmp-results', function(data) {
+                var result = JSON.parse(data)
+                console.log(result)
+            })
+            socket.on('haveibeenpwned_breach-results', function(data) {
+                if (data == false) {
+                    console.log("No breach found.")
+                } else {
+                    var result = JSON.parse(data)
+                    console.log(result)
+                }
+            })
+            socket.on('haveibeenpwned_paste-results', function(data) {
+                if (data == false) {
+                    console.log("No paste found.")
+                } else {
+                    var result = JSON.parse(data)
+                    console.log(result)
+                }
+            })
+            socket.on('hacked-db-results', function(data) {
+                var result = JSON.parse(data)
+                console.log(result)
+            })
         }
-        socket.on('psbdmp-results', function(data) {
-            var result = JSON.parse(data)
-            console.log(result)
-        })
-        socket.on('haveibeenpwned_breach-results', function(data) {
-            if (data == false) {
-                console.log("No breach found.")
-            } else {
-                var result = JSON.parse(data)
-                console.log(result)
-            }
-        })
-        socket.on('haveibeenpwned_paste-results', function(data) {
-            if (data == false) {
-                console.log("No paste found.")
-            } else {
-                var result = JSON.parse(data)
-                console.log(result)
-            }
-        })
-        socket.on('hacked-db-results', function(data) {
-            var result = JSON.parse(data)
-            console.log(result)
-        })
     }
 </script>
 
