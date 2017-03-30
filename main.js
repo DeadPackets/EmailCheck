@@ -101,7 +101,14 @@ function HiBP_paste(email) {
 function hacked_db(email) {
   request('https://www.hacked-db.com/api/v1/email/' + email, function(err, res,
     body) {
-
+    if (err) {
+      log.error(err);
+    }
+    if (res.statusCode == 404) {
+      return false
+    } else {
+      return body
+    }
   })
 }
 
@@ -160,6 +167,10 @@ io.on('connection', function(socket, next) {
     var haveibeenpwned_breach = HiBP_breach(email)
     var haveibeenpwned_paste = HiBP_paste(email)
     var hacked_db = hacked_db(email)
+    var results = [psbdmp, haveibeenpwned_breach, haveibeenpwned_paste,
+      hacked_db
+    ]
+    socket.emit('results', results)
 
   })
 
