@@ -131,7 +131,7 @@ io.on('connection', function(socket, next) {
 			socket.emit('haveibeenpwned_breach-results', haveibeenpwned_breach)
 		})
 
-		sleep.sleep(3)
+		sleep.sleep(1)
 
 		var options = {
 			url: 'https://haveibeenpwned.com/api/v2/pasteaccount/' + email,
@@ -164,6 +164,7 @@ io.on('connection', function(socket, next) {
 			}
 			socket.emit('hacked-db-results', hacked_db)
 		})
+		socket.emit('done-results')
 	}
 
 	socket.on('start-email-recon', function(email) {
