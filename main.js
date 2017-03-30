@@ -7,7 +7,7 @@ const colors = require('colors');
 var app = express();
 var fs = require('fs');
 var http = require('http')
-const spawn = require('child_process').spawn;
+var request = require('request')
 var httpport = 80;
 
 
@@ -44,10 +44,70 @@ function CurrentDate() {
   return final
 }
 
-//Logging functions (USAGE: log.error("Error!") or log.info() and so on)
+//Email Recon functions
+function psbdmp(email) {
+  request('http://psbdmp.com/api/search/email/' + email, function(err, res,
+    body) {
+    if (err) {
+      log.error(err);
+    }
+    if (res.statusCode == 404) {
+      return false
+    } else {
+      return body
+    }
+  })
+}
+
+function HiBP_breach(email) {
+  var options = {
+    url: 'https://haveibeenpwned.com/api/v2/breachedaccount/' + email,
+    headers: {
+      'User-Agent': 'StalkerJS - A NodeJS WebApp for User Recon'
+    }
+  }
+  request(options, function(err, res, body) {
+    if (err) {
+      log.error(err);
+    }
+    if (res.statusCode == 404) {
+      return false
+    } else {
+      return body
+    }
+  })
+}
+
+function HiBP_paste(email) {
+  var options = {
+    url: 'https://haveibeenpwned.com/api/v2/pasteaccount/' + email,
+    headers: {
+      'User-Agent': 'StalkerJS - A NodeJS WebApp for User Recon'
+    }
+  }
+
+  request(options, function(err, res, body) {
+    if (err) {
+      log.error(err);
+    }
+    if (res.statusCode == 404) {
+      return false
+    } else {
+      return body
+    }
+  })
+}
+
+function hacked_db(email) {
+  request('https://www.hacked-db.com/api/v1/email/' + email, function(err, res,
+    body) {
+
+  })
+}
+
 var log = {
   error: function(data) {
-    console.log('ERROR:'.red, "(" + CurrentDate() + ") " + data); //example output "ERROR: (3-5-2017 6:00 AM) Something went wrong!"
+    console.log('ERROR:'.red, "(" + CurrentDate() + ") " + data);
   },
   info: function(data) {
     console.log('INFO:'.green, "(" + CurrentDate() + ") " + data);
@@ -96,10 +156,11 @@ io.on('connection', function(socket, next) {
   socket.on('start-email-recon', function(email) {
     log.info(socket.handshake.address + " has submitted the email " +
       email + " for recon scan.")
-    const emailrecon = spawn(__dirname + 'email-recon.sh', [email]);
-    emailrecon.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-    });
+    var psbdmp = psbdmp(email)
+    var haveibeenpwned_breach = HiBP_breach(email)
+    var haveibeenpwned_paste = HiBP_paste(email)
+    var hacked_db = hacked_db(email)
+
   })
 
   socket.on('disconnect', function() {
