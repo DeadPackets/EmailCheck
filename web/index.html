@@ -6,11 +6,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/components/accordion.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/components/accordion.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/index.js"></script>
@@ -33,8 +31,8 @@
     var searchedPreviously;
     $(function() {
         console.log("Page Loaded!")
-        var emailurl = unescape(location.search.split("=")[1])
-        if (emailurl) {
+        if (!location.search) {} else {
+            var emailurl = unescape(location.search.split("=")[1])
             $('.email').val(emailurl)
             $('.submit').addClass("disabled loading")
             sendEmailRecon(emailurl)
@@ -42,7 +40,6 @@
 
         socket.on('done-results', function() {
             $('.submit').removeClass("disabled loading")
-            console.log("test")
             searchedPreviously = 1
         })
     })
