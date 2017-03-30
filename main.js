@@ -8,6 +8,7 @@ var app = express();
 var fs = require('fs');
 var http = require('http')
 var request = require('request')
+var sleep = require('sleep');
 var httpport = 80;
 
 //TODO: Get SSL certs and place them
@@ -24,6 +25,7 @@ var Entities = require('html-entities').AllHtmlEntities;
 var entities = new Entities();
 
 //MYSQL Connection
+/*
 const mysql = require('mysql');
 var sql = mysql.createPool({
 	host: '127.0.0.1',
@@ -31,7 +33,7 @@ var sql = mysql.createPool({
 	password: '',
 	database: 'StalkerJS'
 });
-
+*/
 //Date function
 function CurrentDate() {
 	var date = new Date();
@@ -41,71 +43,6 @@ function CurrentDate() {
 	return final
 }
 
-//Email Recon functions
-function psbdmp(email) {
-	request('http://psbdmp.com/api/search/email/' + email, function(err, res, body) {
-		if (err) {
-			log.error(err);
-		}
-		if (res.statusCode == 404) {
-			return false
-		} else {
-			return body
-		}
-	})
-}
-
-function HiBP_breach(email) {
-	var options = {
-		url: 'https://haveibeenpwned.com/api/v2/breachedaccount/' + email,
-		headers: {
-			'User-Agent': 'StalkerJS - A NodeJS WebApp for User Recon'
-		}
-	}
-	request(options, function(err, res, body) {
-		if (err) {
-			log.error(err);
-		}
-		if (res.statusCode == 404) {
-			return false
-		} else {
-			return body
-		}
-	})
-}
-
-function HiBP_paste(email) {
-	var options = {
-		url: 'https://haveibeenpwned.com/api/v2/pasteaccount/' + email,
-		headers: {
-			'User-Agent': 'StalkerJS - A NodeJS WebApp for User Recon'
-		}
-	}
-
-	request(options, function(err, res, body) {
-		if (err) {
-			log.error(err);
-		}
-		if (res.statusCode == 404) {
-			return false
-		} else {
-			return body
-		}
-	})
-}
-
-function hacked_db(email) {
-	request('https://www.hacked-db.com/api/v1/email/' + email, function(err, res, body) {
-		if (err) {
-			log.error(err);
-		}
-		if (res.statusCode == 404) {
-			return false
-		} else {
-			return body
-		}
-	})
-}
 
 var log = {
 	error: function(data) {
@@ -154,15 +91,86 @@ app.use(function(req, res) {
 io.on('connection', function(socket, next) {
 	log.info(socket.handshake.address + " has connected.")
 
+	//Email Recon functions
+
+	function EmailRecon(email) {
+		var psbdmp;
+		var haveibeenpwned_breach;
+		var haveibeenpwned_paste;
+		var hacked_db;
+
+		request('http://psbdmp.com/api/search/email/' + email, function(err, res, body) {
+			if (err) {
+				log.error(err);
+			}
+			if (res.statusCode == 404) {
+				psbdmp = false
+			} else {
+				psbdmp = body
+			}
+			socket.emit('psbdmp-results', psbdmp)
+
+		})
+
+		var options = {
+			url: 'https://haveibeenpwned.com/api/v2/breachedaccount/' + email,
+			headers: {
+				'User-Agent': 'StalkerJS - A NodeJS WebApp for User Recon'
+			}
+		}
+
+		request(options, function(err, res, body) {
+			if (err) {
+				log.error(err);
+			}
+			if (res.statusCode == 404) {
+				haveibeenpwned_breach = false
+			} else {
+				haveibeenpwned_breach = body
+			}
+			socket.emit('haveibeenpwned_breach-results', haveibeenpwned_breach)
+		})
+
+		sleep.sleep(3)
+
+		var options = {
+			url: 'https://haveibeenpwned.com/api/v2/pasteaccount/' + email,
+			headers: {
+				'User-Agent': 'StalkerJS - A NodeJS WebApp for User Recon'
+			}
+		}
+
+		request(options, function(err, res, body) {
+			if (err) {
+				log.error(err);
+			}
+			if (res.statusCode == 404) {
+				haveibeenpwned_paste = false
+			} else {
+				haveibeenpwned_paste = body
+			}
+			socket.emit('haveibeenpwned_paste-results', haveibeenpwned_paste)
+
+		})
+
+		request('https://www.hacked-db.com/api/v1/email/' + email, function(err, res, body) {
+			if (err) {
+				log.error(err);
+			}
+			if (res.statusCode == 404) {
+				hacked_db = false
+			} else {
+				hacked_db = body
+			}
+			socket.emit('hacked-db-results', hacked_db)
+		})
+	}
+
 	socket.on('start-email-recon', function(email) {
 		log.info(socket.handshake.address + " has submitted the email " + email + " for recon scan.")
-		var psbdmp = psbdmp(email)
-		var haveibeenpwned_breach = HiBP_breach(email)
-		var haveibeenpwned_paste = HiBP_paste(email)
-		var hacked_db = hacked_db(email)
-		var results = [psbdmp, haveibeenpwned_breach, haveibeenpwned_paste, hacked_db]
-		socket.emit('results', results)
-
+		EmailRecon(email, function(data) {
+			console.log(data)
+		})
 	})
 
 	socket.on('disconnect', function() {
