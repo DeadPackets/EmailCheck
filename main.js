@@ -167,10 +167,13 @@ io.on('connection', function(socket, next) {
 	}
 
 	socket.on('start-email-recon', function(email) {
-		log.info(socket.handshake.address + " has submitted the email " + email + " for recon scan.")
-		EmailRecon(email, function(data) {
-			console.log(data)
-		})
+		if (email == '') {
+			log.warn("Someone submitted an invalid email!")
+			next()
+		} else {
+			log.info(socket.handshake.address + " has submitted the email " + email + " for recon scan.")
+			EmailRecon(email)
+		}
 	})
 
 	socket.on('disconnect', function() {

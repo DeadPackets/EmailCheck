@@ -6,9 +6,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/components/accordion.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/components/accordion.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/index.js"></script>
@@ -17,35 +19,51 @@
 <body class="animated fadeIn">
     <div id="container">
         <br />
-        <form class="ui massive form" onsubmit="sendEmailRecon(this.email.value); return false">
+        <form class="ui massive form" onsubmit="sendEmailRecon(this.email.value); return false;">
             <div class="field">
                 <label>Email</label>
                 <input type="email" name="email" placeholder="johndoe@example.com">
             </div>
-            <button class="ui button" type="submit">Submit</button>
+            <button class="ui button hvr-grow" type="submit">Submit</button>
         </form>
     </div>
 </body>
 <script>
     function sendEmailRecon(email) {
-        socket.emit('start-email-recon', email)
-    }
-    $(function() {
-        console.log("Page Loaded!")
-    })
+        if (email == '') {
+            swal("Please provide an email!", 'error')
+        } else {
+            socket.emit('start-email-recon', email)
+        }
+        $(function() {
+            console.log("Page Loaded!")
+        })
 
-    socket.on('psbdmp-results', function(data) {
-        console.log(data)
-    })
-    socket.on('haveibeenpwned_breach-results', function(data) {
-        console.log(data)
-    })
-    socket.on('haveibeenpwned_paste-results', function(data) {
-        console.log(data)
-    })
-    socket.on('hacked-db-results', function(data) {
-        console.log(data)
-    })
+        socket.on('psbdmp-results', function(data) {
+            var result = JSON.parse(data)
+            console.log(result)
+        })
+        socket.on('haveibeenpwned_breach-results', function(data) {
+            if (data == false) {
+                console.log("No breach found.")
+            } else {
+                var result = JSON.parse(data)
+                console.log(result)
+            }
+        })
+        socket.on('haveibeenpwned_paste-results', function(data) {
+            if (data == false) {
+                console.log("No paste found.")
+            } else {
+                var result = JSON.parse(data)
+                console.log(result)
+            }
+        })
+        socket.on('hacked-db-results', function(data) {
+            var result = JSON.parse(data)
+            console.log(result)
+        })
+    }
 </script>
 
 </html>
