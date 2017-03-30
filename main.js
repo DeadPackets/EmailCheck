@@ -7,6 +7,7 @@ const colors = require('colors');
 var app = express();
 var fs = require('fs');
 var http = require('http')
+const spawn = require('child_process').spawn;
 var httpport = 80;
 
 
@@ -90,6 +91,16 @@ app.use(function(req, res) {
 //Socket.io initiating and logging connections
 io.on('connection', function(socket, next) {
   log.info(socket.handshake.address + " has connected.")
+
+
+  socket.on('start-email-recon', function(email) {
+    log.info(socket.handshake.address + " has submitted the email " +
+      email + " for recon scan.")
+    const emailrecon = spawn(__dirname + 'email-recon.sh', [email]);
+    emailrecon.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+    });
+  })
 
   socket.on('disconnect', function() {
     log.info(socket.handshake.address + " has disconnected")

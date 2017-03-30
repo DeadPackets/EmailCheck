@@ -21,34 +21,34 @@ HACKED_DB=$(curl --silent "https://www.hacked-db.com/api/v1/email/$1")
 
 if [ -z "$PSBDMP" ]; then
   echo "PastebinDump returned nothing."
-  echo
+  echo "-------"
 else
   echo $PSBDMP | jq .
-  echo
+  echo "-------"
 fi
 
 if [ -z "$HAVEIBEENPWNED_BREACH" ]; then
   echo "HaveIBeenPwned-Breach returned nothing."
-  echo
+  echo "-------"
 else
   echo $HAVEIBEENPWNED_BREACH | jq .
-  echo
+  echo "-------"
 fi
 
 if [ -z "$HAVEIBEENPWNED_PASTE" ]; then
   echo "HaveIBeenPwned-Paste returned nothing."
-  echo
+  echo "-------"
 else
   echo $HAVEIBEENPWNED_PASTE | jq .
-  echo
+  echo "-------"
 fi
 
 if [ -z "$HACKED_DB" ]; then
   echo "Hacked_DB returned nothing."
-  echo
+  echo "-------"
 else
   echo $HACKED_DB | jq .
-  echo
+  echo "-------"
 fi
 
 ##TODO: Add NodeJS callbacks here
