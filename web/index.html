@@ -25,7 +25,44 @@
             <button class="ui button hvr-grow submit" type="submit">Submit</button>
         </form>
     </div>
-    <div class="ui divider"></div>
+    <div class="results">
+        <div class="ui divider"></div>
+        <div class="psbdmp">
+            <h1>PSBDMP Reults</h1>
+            <div class="psbdmp-results">
+
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <div class="hibp-breach">
+            <h1>Have I Been Pwned Breach Results</h1>
+            <div class="hibp-breach-results">
+
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <div class="hibp-paste">
+            <h1>Have I Been Pwned Paste Results</h1>
+            <div class="hibp-paste-results">
+
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <div class="hacked-db">
+            <h1>Hacked-DB Results</h1>
+            <div class="hacked-db-results">
+
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <div class="hacked-emails">
+            <h1>Hacked-Emails Results</h1>
+            <div class="hacked-emails-results">
+
+            </div>
+        </div>
+        <div class="ui divider"></div>
+    </div>
 </body>
 <script>
     var searchedPreviously;
@@ -58,6 +95,7 @@
 
             if (email == '') {
                 swal("Wait!", "Please provide an email!", 'error')
+                $('.submit').removeClass("disabled loading")
             } else {
                 socket.emit('start-email-recon', email)
             }
@@ -69,19 +107,22 @@
                 } else {
                     if (result.count > 0) {
                         console.log(result.count + " pastes found in PSBDMP!")
+                        $('.psbdmp-results').html('<div class="ui red inverted segment psbdmp-details"><h2>' + result.count + ' breach(es) found in Pastebin Dumps!</h2><div class="ui divider"></div>')
                         for (var i = 0; i < result.data.length; i++) {
                             var id = result.data[i]["id"]
                             var time = result.data[i]["time"]
+                            $('.psbdmp-details').append('<div class="ui inverted red tertiary segment"><p>Paste with ID of ' + id + ' leaked on ' + time + '</p></div>')
+
                         }
                     } else {
-                        console.log("No pastes found in PSBDMP!")
+                        $('.psbdmp-results').html('<div class="ui green inverted segment"><h2>' + result.count + ' breach(es) found in Pastebin Dumps!</h2></div>')
                     }
                 }
             })
 
             socket.on('haveibeenpwned_breach-results', function(data) {
                 if (data == false) {
-                    console.log("No breach found in HiBP_Breach!")
+                    $('.hibp-breach-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Breaches!</h2></div>')
                 } else {
                     var result = JSON.parse(data)
                     console.log(result.length + " breaches found in HiBP_Breach!")
@@ -99,7 +140,7 @@
 
             socket.on('haveibeenpwned_paste-results', function(data) {
                 if (data == false) {
-                    console.log("No paste found in HiBP_Paste!")
+                    $('.hibp-paste-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Pastes!</h2></div>')
                 } else {
                     var result = JSON.parse(data)
                     console.log(result.length + " pastes found in HiBP_Paste!")
