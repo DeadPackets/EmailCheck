@@ -98,6 +98,7 @@ io.on('connection', function(socket, next) {
 		var haveibeenpwned_breach;
 		var haveibeenpwned_paste;
 		var hacked_db;
+		var hacked_email;
 
 		request('http://psbdmp.com/api/search/email/' + email, function(err, res, body) {
 			if (err) {
@@ -163,6 +164,18 @@ io.on('connection', function(socket, next) {
 				hacked_db = body
 			}
 			socket.emit('hacked-db-results', hacked_db)
+		})
+
+		request('https://www.hacked-emails.com/api?q=' + email, function(err, res, body) {
+			if (err) {
+				log.error(err);
+			}
+			if (res.statusCode == 404) {
+				hacked_email = false
+			} else {
+				hacked_email = body
+			}
+			socket.emit('hacked-email-results', hacked_email)
 		})
 		socket.emit('done-results')
 	}
