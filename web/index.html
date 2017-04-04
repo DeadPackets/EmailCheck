@@ -106,7 +106,6 @@
                     console.log("Pastebin Dump Error!")
                 } else {
                     if (result.count > 0) {
-                        console.log(result.count + " pastes found in PSBDMP!")
                         $('.psbdmp-results').html('<div class="ui red inverted segment psbdmp-details"><h2>' + result.count + ' breach(es) found in Pastebin Dumps!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>ID</th><th>Date Pasted</th></tr></thead><tbody class="psbdmp-table"></tbody></table>')
                         for (var i = 0; i < result.data.length; i++) {
                             var id = result.data[i]["id"]
@@ -125,7 +124,6 @@
                     $('.hibp-breach-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Breaches!</h2></div>')
                 } else {
                     var result = JSON.parse(data)
-                    console.log(result.length + " breaches found in HiBP_Breach!")
                     $('.hibp-breach-results').html('<div class="ui red inverted segment hipb-breach-details"><h2>' + result.length + ' breach(es) found in HaveIBeenPwned-Breaches!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Breach</th><th>Domain</th><th>Description</th><th>Data Leaked</th><th>Pwn Count (Email Count)</th><th>IsVerified</th></tr></thead><tbody class="hipb-breach-table"></tbody></table>')
                     for (var i = 0; i < result.length; i++) {
                         var breachtitle = result[i]["Title"]
@@ -145,7 +143,6 @@
                     $('.hibp-paste-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Pastes!</h2></div>')
                 } else {
                     var result = JSON.parse(data)
-                    console.log(result.length + " pastes found in HiBP_Paste!")
                     $('.hibp-paste-results').html('<div class="ui red inverted segment hipb-paste-details"><h2>' + result.length + ' breach(es) found in HaveIBeenPwned-Pastes!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>ID</th><th>Date of Paste</th><th>Source</th><th>Title</th><th>Email Count</th></tr></thead><tbody class="hipb-paste-table"></tbody></table>')
                     for (var i = 0; i < result.length; i++) {
                         var date = result[i]["Date"]
@@ -167,23 +164,24 @@
                 }
             })
 
-            socket.on('hacked-email-results', function(data) {
+            socket.on('hacked-emails-results', function(data) {
                 var result = JSON.parse(data)
                 if (result.status == "found") {
                     var no_of_leaks = result.results
-                    console.log(no_of_leaks + " leaks found in Hacked-Emails!")
+                    $('.hacked-emails-results').html('<div class="ui red inverted segment"><h2>' + no_of_leaks + ' breach(es) found in Hacked-Emails!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Paste</th><th>Source Network</th><th>Source URL</th><th>Source Provider</th><th>Details</th><th>Email Count</th><th>Is Verified</th></tr></thead><tbody class="hacked-emails-table"></tbody></table></div>')
                     for (var i = 0; i < result.data.length; i++) {
                         var emails_count = result.data[i]["emails_count"]
-                        var date = result.data[i]["data_leaked"]
+                        var date = result.data[i]["date_leaked"]
                         var source_network = result.data[i]["source_network"]
                         var verified = result.data[i]["verified"]
                         var source_url = result.data[i]["source_url"]
                         var title = result.data[i]["title"]
                         var source_provider = result.data[i]["source_provider"]
                         var details = result.data[i]["details"]
+                        $('.hacked-emails-table').append('<tr><td>' + title + '</td><td>' + date + '</td><td>' + source_network + '</td><td>' + source_url + '</td><td>' + source_provider + '</td><td>' + details + '</td><td>' + emails_count + '</td><td>' + verified + '</td>')
                     }
                 } else {
-                    console.log("No record in Hacked-Emails!")
+                  $('.hacked-emails-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in Hacked-Emails!</h2></div>')
                 }
             })
         }

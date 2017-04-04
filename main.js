@@ -171,11 +171,11 @@ io.on('connection', function(socket, next) {
 				log.error(err);
 			}
 			if (res.statusCode == 404) {
-				hacked_email = false
+				hacked_emails = false
 			} else {
-				hacked_email = body
+				hacked_emails = body
 			}
-			socket.emit('hacked-email-results', hacked_email)
+			socket.emit('hacked-emails-results', hacked_emails)
 		})
 		socket.emit('done-results')
 	}
