@@ -1,6 +1,6 @@
 <html>
 
-<head>
+  <head>
     <title>EmailCheck</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.1.0/css/hover-min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
@@ -10,182 +10,193 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
-    <script src="/socket.io/socket.io.js"></script>
     <script src="/js/index.js"></script>
-</head>
+  </head>
 
-<body class="animated fadeIn">
+  <body class="animated fadeIn">
     <div id="container">
-        <br />
-        <form class="ui massive form" onsubmit="sendEmailRecon(this.email.value); return false">
-            <div class="field">
-                <label>Email</label>
-                <input type="email" name="email" class="email" placeholder="johndoe@example.com">
-            </div>
-            <button class="ui button hvr-grow submit" type="submit">Submit</button>
-        </form>
+      <br />
+      <form class="ui massive form" onsubmit="sendEmailRecon(this.email.value); return false">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="email" class="email" placeholder="johndoe@example.com">
+        </div>
+        <button class="ui button hvr-grow submit" type="submit">Submit</button>
+      </form>
     </div>
     <div class="results">
-        <div class="ui divider"></div>
-        <div class="psbdmp">
-            <h1>PSBDMP Reults</h1>
-            <div class="psbdmp-results">
+      <div class="ui divider"></div>
+      <div class="psbdmp">
+        <h1>PSBDMP Reults</h1>
+        <div class="psbdmp-results">
 
-            </div>
         </div>
-        <div class="ui divider"></div>
-        <div class="hibp-breach">
-            <h1>Have I Been Pwned Breach Results</h1>
-            <div class="hibp-breach-results">
+      </div>
+      <div class="ui divider"></div>
+      <div class="hibp-breach">
+        <h1>Have I Been Pwned Breach Results</h1>
+        <div class="hibp-breach-results">
 
-            </div>
         </div>
-        <div class="ui divider"></div>
-        <div class="hibp-paste">
-            <h1>Have I Been Pwned Paste Results</h1>
-            <div class="hibp-paste-results">
+      </div>
+      <div class="ui divider"></div>
+      <div class="hibp-paste">
+        <h1>Have I Been Pwned Paste Results</h1>
+        <div class="hibp-paste-results">
 
-            </div>
         </div>
-        <div class="ui divider"></div>
-        <div class="hacked-db">
-            <h1>Hacked-DB Results</h1>
-            <div class="hacked-db-results">
+      </div>
+      <div class="ui divider"></div>
+      <div class="hacked-db">
+        <h1>Hacked-DB Results</h1>
+        <div class="hacked-db-results">
 
-            </div>
         </div>
-        <div class="ui divider"></div>
-        <div class="hacked-emails">
-            <h1>Hacked-Emails Results</h1>
-            <div class="hacked-emails-results">
+      </div>
+      <div class="ui divider"></div>
+      <div class="hacked-emails">
+        <h1>Hacked-Emails Results</h1>
+        <div class="hacked-emails-results">
 
-            </div>
         </div>
-        <div class="ui divider"></div>
+      </div>
+      <div class="ui divider"></div>
     </div>
-</body>
-<script>
+  </body>
+  <script>
     var searchedPreviously;
     $(function() {
-        console.log("Page Loaded!")
-        if (!location.search) {} else {
-            var emailurl = unescape(location.search.split("=")[1])
-            $('.email').val(emailurl)
-            $('.submit').addClass("disabled loading")
-            sendEmailRecon(emailurl)
-        }
+      console.log("Page Loaded!")
+      if (!location.search) {} else {
+        var emailurl = unescape(location.search.split("=")[1])
+        $('.email').val(emailurl)
+        $('.submit').addClass("disabled loading")
+        sendEmailRecon(emailurl)
+      }
 
-        socket.on('done-results', function() {
-            $('.submit').removeClass("disabled loading")
-            searchedPreviously = 1
-        })
+      function DoneResults() {
+        $('.submit').removeClass("disabled loading")
+        searchedPreviously = 1
+      }
     })
 
     $('.submit').click(function() {
-        var email = $('.email').val()
-        if (email == '') {} else {
-            $(this).addClass("disabled loading")
-        }
+      var email = $('.email').val()
+      if (email == '') {} else {
+        $(this).addClass("disabled loading")
+      }
     })
 
     function sendEmailRecon(email) {
-        if (searchedPreviously == 1) {
-            e.preventDefaultBehavior()
+      if (searchedPreviously == 1) {
+        e.preventDefaultBehavior()
+      } else {
+
+        if (email == '') {
+          swal("Wait!", "Please provide an email!", 'error')
+          $('.submit').removeClass("disabled loading")
         } else {
-
-            if (email == '') {
-                swal("Wait!", "Please provide an email!", 'error')
-                $('.submit').removeClass("disabled loading")
-            } else {
-                socket.emit('start-email-recon', email)
-            }
-
-            socket.on('psbdmp-results', function(data) {
-                var result = JSON.parse(data)
-                if (result.error > 0) {
-                    $('.psbdmp-results').html('<div class="ui yellow inverted segment"><h2>Error searching Pastebin Dumps!</h2></div>')
-                } else {
-                    if (result.count > 0) {
-                        $('.psbdmp-results').html('<div class="ui red inverted segment psbdmp-details"><h2>' + result.count + ' breach(es) found in Pastebin Dumps!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>ID</th><th>Date Pasted</th></tr></thead><tbody class="psbdmp-table"></tbody></table>')
-                        for (var i = 0; i < result.data.length; i++) {
-                            var id = result.data[i]["id"]
-                            var time = result.data[i]["time"]
-                            $('.psbdmp-table').append('<tr><td>' + id + '</td><td>' + time + '</td></tr>')
-
-                        }
-                    } else {
-                        $('.psbdmp-results').html('<div class="ui green inverted segment"><h2>' + result.count + ' breach(es) found in Pastebin Dumps!</h2></div>')
-                    }
-                }
-            })
-
-            socket.on('haveibeenpwned_breach-results', function(data) {
-                if (data == false) {
-                    $('.hibp-breach-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Breaches!</h2></div>')
-                } else {
-                    var result = JSON.parse(data)
-                    $('.hibp-breach-results').html('<div class="ui red inverted segment hipb-breach-details"><h2>' + result.length + ' breach(es) found in HaveIBeenPwned-Breaches!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Breach</th><th>Domain</th><th>Description</th><th>Data Leaked</th><th>Pwn Count (Email Count)</th><th>IsVerified</th></tr></thead><tbody class="hipb-breach-table"></tbody></table>')
-                    for (var i = 0; i < result.length; i++) {
-                        var breachtitle = result[i]["Title"]
-                        var breachdate = result[i]["BreachDate"]
-                        var description = result[i]["Description"]
-                        var data_leaked = result[i]["DataClasses"]
-                        var pwncount = result[i]["PwnCount"]
-                        var isverified = result[i]["IsVerified"]
-                        var breachdomain = result[i]["Domain"]
-                        $('.hipb-breach-table').append('<tr><td>' + breachtitle + '</td><td>' + breachdate + '</td><td>' + breachdomain + '</td><<td>' + description + '</td><td>' + data_leaked + '</td><td>' + pwncount + '</td><td>' + isverified + '</td>/tr>')
-                    }
-                }
-            })
-
-            socket.on('haveibeenpwned_paste-results', function(data) {
-                if (data == false) {
-                    $('.hibp-paste-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Pastes!</h2></div>')
-                } else {
-                    var result = JSON.parse(data)
-                    $('.hibp-paste-results').html('<div class="ui red inverted segment hipb-paste-details"><h2>' + result.length + ' breach(es) found in HaveIBeenPwned-Pastes!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>ID</th><th>Date of Paste</th><th>Source</th><th>Title</th><th>Email Count</th></tr></thead><tbody class="hipb-paste-table"></tbody></table>')
-                    for (var i = 0; i < result.length; i++) {
-                        var date = result[i]["Date"]
-                        var emailcount = result[i]["EmailCount"]
-                        var id = result[i]["Id"]
-                        var source = result[i]["Source"]
-                        var title = result[i]["Title"]
-                        $('.hipb-paste-table').append('<tr><td>' + id + '</td><td>' + date + '</td><td>' + source + '</td><td>' + title + '</td><td>' + emailcount + '</td></tr>')
-                    }
-                }
-            })
-
-            socket.on('hacked-db-results', function(data) {
-                var result = JSON.parse(data)
-                if (result.result == false) {
-                    $('.hacked-db-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in Hacked-DB!</h2></div>')
-                } else {
-                    $('.hacked-db-results').html('<div class="ui red inverted segment"><h2>Breach(es) found in Hacked-DB!</h2></div>')
-                }
-            })
-
-            socket.on('hacked-emails-results', function(data) {
-                var result = JSON.parse(data)
-                if (result.status == "found") {
-                    var no_of_leaks = result.results
-                    $('.hacked-emails-results').html('<div class="ui red inverted segment"><h2>' + no_of_leaks + ' breach(es) found in Hacked-Emails!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Paste</th><th>Source Network</th><th>Source URL</th><th>Source Provider</th><th>Details</th><th>Email Count</th><th>Is Verified</th></tr></thead><tbody class="hacked-emails-table"></tbody></table></div>')
-                    for (var i = 0; i < result.data.length; i++) {
-                        var emails_count = result.data[i]["emails_count"]
-                        var date = result.data[i]["date_leaked"]
-                        var source_network = result.data[i]["source_network"]
-                        var verified = result.data[i]["verified"]
-                        var source_url = result.data[i]["source_url"]
-                        var title = result.data[i]["title"]
-                        var source_provider = result.data[i]["source_provider"]
-                        var details = result.data[i]["details"]
-                        $('.hacked-emails-table').append('<tr><td>' + title + '</td><td>' + date + '</td><td>' + source_network + '</td><td>' + source_url + '</td><td>' + source_provider + '</td><td>' + details + '</td><td>' + emails_count + '</td><td>' + verified + '</td>')
-                    }
-                } else {
-                  $('.hacked-emails-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in Hacked-Emails!</h2></div>')
-                }
-            })
+          //Start email recon function
+          EmailRecon(email)
         }
+
+        function PSBDMPResults(data) {
+          var result = JSON.parse(data)
+          if (result.error > 0) {
+            $('.psbdmp-results').html('<div class="ui yellow inverted segment"><h2>Error searching Pastebin Dumps!</h2></div>')
+          } else {
+            if (result.count > 0) {
+              $('.psbdmp-results').html('<div class="ui red inverted segment psbdmp-details"><h2>' + result.count +
+                ' breach(es) found in Pastebin Dumps!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>ID</th><th>Date Pasted</th></tr></thead><tbody class="psbdmp-table"></tbody></table>')
+              for (var i = 0; i < result.data.length; i++) {
+                var id = result.data[i]["id"]
+                var time = result.data[i]["time"]
+                $('.psbdmp-table').append('<tr><td>' + id + '</td><td>' + time + '</td></tr>')
+
+              }
+            } else {
+              $('.psbdmp-results').html('<div class="ui green inverted segment"><h2>' + result.count + ' breach(es) found in Pastebin Dumps!</h2></div>')
+            }
+          }
+        }
+
+
+        function HaveIBeenPwnedBreachResults(data) {
+          if (data == false) {
+            $('.hibp-breach-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Breaches!</h2></div>')
+          } else {
+            var result = JSON.parse(data)
+            $('.hibp-breach-results').html('<div class="ui red inverted segment hipb-breach-details"><h2>' + result.length +
+              ' breach(es) found in HaveIBeenPwned-Breaches!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Breach</th><th>Domain</th><th>Description</th><th>Data Leaked</th><th>Pwn Count (Email Count)</th><th>IsVerified</th></tr></thead><tbody class="hipb-breach-table"></tbody></table>'
+            )
+            for (var i = 0; i < result.length; i++) {
+              var breachtitle = result[i]["Title"]
+              var breachdate = result[i]["BreachDate"]
+              var description = result[i]["Description"]
+              var data_leaked = result[i]["DataClasses"]
+              var pwncount = result[i]["PwnCount"]
+              var isverified = result[i]["IsVerified"]
+              var breachdomain = result[i]["Domain"]
+              $('.hipb-breach-table').append('<tr><td>' + breachtitle + '</td><td>' + breachdate + '</td><td>' + breachdomain + '</td><<td>' + description + '</td><td>' + data_leaked + '</td><td>' + pwncount + '</td><td>' + isverified +
+                '</td>/tr>')
+            }
+          }
+        }
+
+        function HaveIBeenPwnedPasteResults(data) {
+          if (data == false) {
+            $('.hibp-paste-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Pastes!</h2></div>')
+          } else {
+            var result = JSON.parse(data)
+            $('.hibp-paste-results').html('<div class="ui red inverted segment hipb-paste-details"><h2>' + result.length +
+              ' breach(es) found in HaveIBeenPwned-Pastes!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>ID</th><th>Date of Paste</th><th>Source</th><th>Title</th><th>Email Count</th></tr></thead><tbody class="hipb-paste-table"></tbody></table>'
+            )
+            for (var i = 0; i < result.length; i++) {
+              var date = result[i]["Date"]
+              var emailcount = result[i]["EmailCount"]
+              var id = result[i]["Id"]
+              var source = result[i]["Source"]
+              var title = result[i]["Title"]
+              $('.hipb-paste-table').append('<tr><td>' + id + '</td><td>' + date + '</td><td>' + source + '</td><td>' + title + '</td><td>' + emailcount + '</td></tr>')
+            }
+          }
+        }
+
+        function HackedDBResults() {
+          var result = JSON.parse(data)
+          if (result.result == false) {
+            $('.hacked-db-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in Hacked-DB!</h2></div>')
+          } else {
+            $('.hacked-db-results').html('<div class="ui red inverted segment"><h2>Breach(es) found in Hacked-DB!</h2></div>')
+          }
+        }
+
+        function HackedEmailResults(data) {
+          var result = JSON.parse(data)
+          if (result.status == "found") {
+            var no_of_leaks = result.results
+            $('.hacked-emails-results').html('<div class="ui red inverted segment"><h2>' + no_of_leaks +
+              ' breach(es) found in Hacked-Emails!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Paste</th><th>Source Network</th><th>Source URL</th><th>Source Provider</th><th>Details</th><th>Email Count</th><th>Is Verified</th></tr></thead><tbody class="hacked-emails-table"></tbody></table></div>'
+            )
+            for (var i = 0; i < result.data.length; i++) {
+              var emails_count = result.data[i]["emails_count"]
+              var date = result.data[i]["date_leaked"]
+              var source_network = result.data[i]["source_network"]
+              var verified = result.data[i]["verified"]
+              var source_url = result.data[i]["source_url"]
+              var title = result.data[i]["title"]
+              var source_provider = result.data[i]["source_provider"]
+              var details = result.data[i]["details"]
+              $('.hacked-emails-table').append('<tr><td>' + title + '</td><td>' + date + '</td><td>' + source_network + '</td><td>' + source_url + '</td><td>' + source_provider + '</td><td>' + details + '</td><td>' + emails_count +
+                '</td><td>' +
+                verified + '</td>')
+            }
+          } else {
+            $('.hacked-emails-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in Hacked-Emails!</h2></div>')
+          }
+        }
+      }
     }
-</script>
+  </script>
 
 </html>
