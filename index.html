@@ -113,9 +113,15 @@
         $('.hibp-breach-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Breaches!</h2></div>')
       }
     }).then(function(json) {
-      $('.hibp-breach-results').html('<div class="ui red inverted segment hipb-breach-details"><h2>' + json.length +
-        ' breach(es) found in HaveIBeenPwned-Breaches!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Breach</th><th>Domain</th><th>Description</th><th>Data Leaked</th><th>Pwn Count (Email Count)</th><th>IsVerified</th></tr></thead><tbody class="hipb-breach-table"></tbody></table>'
-      )
+      if (json) {
+        $('.hibp-breach-results').html('<div class="ui red inverted segment hipb-breach-details"><h2>' + json.length +
+          ' breach(es) found in HaveIBeenPwned-Breaches!</h2><div class="ui divider"></div><table class="ui striped celled table"><thead><tr><th>Title</th><th>Date of Breach</th><th>Domain</th><th>Description</th><th>Data Leaked</th><th>Pwn Count (Email Count)</th><th>IsVerified</th></tr></thead><tbody class="hipb-breach-table"></tbody></table>'
+        )
+      } else {
+        $('.hibp-breach-results').html('<div class="ui green inverted segment"><h2>No breach(es) found in HaveIBeenPwned-Breaches!</h2></div>')
+        return false;
+      }
+
       for (var i = 0; i < json.length; i++) {
         var breachtitle = json[i]["Title"]
         var breachdate = json[i]["BreachDate"]
