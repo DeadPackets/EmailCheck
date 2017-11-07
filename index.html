@@ -106,7 +106,7 @@
       headers: reqHeaders
     };
 
-    fetch('https://haveibeenpwned.com/api/v2/breachedaccount/' + email, init).then(function(res) {
+    fetch('https://haveibeenpwned.com/api/v2/breachedaccount/' + email + '?includeUnverified=true', init).then(function(res) {
       if (res.status === 200) {
         return res.json()
       } else {
